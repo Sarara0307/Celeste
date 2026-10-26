@@ -3,15 +3,15 @@
 @layer base {
   :root {
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    --font-serif: 'Newsreader', Georgia, serif;
+    --font-serif: 'Playfair Display', 'Newsreader', Georgia, serif;
     --font-mono: 'JetBrains Mono', monospace;
     color-scheme: light;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #F7F5EC;
-    color: #2C382E;
+    background-color: #F4F7F4;
+    color: #233329;
     letter-spacing: -0.01em;
     overflow-x: hidden;
   }
@@ -25,11 +25,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #E9E1D1;
+    background: #D9E3D8;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #B8CBB3;
+    background: #B6C7B5;
   }
 }
 
@@ -37,11 +37,36 @@
   font-family: var(--font-serif);
 }
 
-/* Warm card aesthetics */
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Organic travel-inspired card surfaces & frames */
+.travel-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(220, 230, 222, 0.8);
+  box-shadow: 0 4px 20px -3px rgba(35, 67, 56, 0.06);
+}
+
+.polaroid-frame {
+  background: #FFFFFF;
+  padding: 10px 10px 18px 10px;
+  box-shadow: 0 8px 30px -4px rgba(35, 67, 56, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 30px -5px rgba(35, 67, 56, 0.12);
+}
+
 .warm-card {
   background: #FFFFFF;
-  border: 1px solid #E9E1D1;
-  box-shadow: 0 2px 10px -3px rgba(73, 102, 77, 0.05);
+  border: 1px solid #E2ECE1;
+  box-shadow: 0 3px 14px -3px rgba(35, 67, 56, 0.05);
 }
 
 .warm-card-sand {
@@ -50,13 +75,13 @@
 }
 
 .warm-card-sage {
-  background: #F1F5F0;
-  border: 1px solid #D5E1D2;
+  background: #F1F6F1;
+  border: 1px solid #D4E3D3;
 }
 
 .sand-pill {
-  background: #E9E1D1;
-  color: #49664D;
+  background: #EFE9DC;
+  color: #2C4C3E;
 }
 
 .sage-pill {

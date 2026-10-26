@@ -5,20 +5,23 @@
 
 import React, { useState } from 'react';
 import { FinanceProvider, useFinance } from './context/FinanceContext';
-import { Navbar } from './components/Navbar';
-import { BottomNav } from './components/BottomNav';
-import { Sidebar } from './components/Sidebar';
+import { TravelTopBar } from './components/TravelTopBar';
+import { TravelGlassNav } from './components/TravelGlassNav';
 import { Toast } from './components/Toast';
 import { TwoTapExpenseModal } from './components/TwoTapExpenseModal';
 import { EditIncomeModal } from './components/EditIncomeModal';
 import { SmartCoachDrawer } from './components/SmartCoachDrawer';
 
-// Core Pages
-import { HomePage } from './pages/HomePage';
-import { MyMoneyPage } from './pages/MyMoneyPage';
-import { VisionBoardPage } from './pages/VisionBoardPage';
+// Travel-Inspired UI/UX Screens
+import { TravelHomeDashboard } from './pages/TravelHomeDashboard';
+import { TravelItineraryPage } from './pages/TravelItineraryPage';
+import { TravelMapPlanPage } from './pages/TravelMapPlanPage';
+
+// Financial Engine Tools
 import { GoalsPage } from './pages/GoalsPage';
+import { MyMoneyPage } from './pages/MyMoneyPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { VisionBoardPage } from './pages/VisionBoardPage';
 import { HabitConverterPage } from './pages/HabitConverterPage';
 import { MoneyHarmonyPage } from './pages/MoneyHarmonyPage';
 
@@ -30,12 +33,24 @@ const AppContent: React.FC = () => {
 
   const renderActivePage = () => {
     switch (activeTab) {
-      case 'habits':
-      case 'converter':
-        return <HabitConverterPage />;
-      case 'harmony':
-      case 'split':
-        return <MoneyHarmonyPage />;
+      case 'itinerary':
+        return (
+          <TravelItineraryPage
+            onNavigate={setActiveTab}
+            onOpenAddModal={() => setIsTwoTapModalOpen(true)}
+          />
+        );
+      case 'plan_map':
+      case 'map':
+        return (
+          <TravelMapPlanPage
+            onNavigate={setActiveTab}
+            onOpenAddModal={() => setIsTwoTapModalOpen(true)}
+          />
+        );
+      case 'goals':
+      case 'jars':
+        return <GoalsPage />;
       case 'money':
       case 'safe_spend':
       case 'transactions':
@@ -49,21 +64,20 @@ const AppContent: React.FC = () => {
         );
       case 'vision':
         return <VisionBoardPage />;
-      case 'goals':
-      case 'jars':
-      case 'simulator':
-        return <GoalsPage />;
+      case 'habits':
+        return <HabitConverterPage />;
+      case 'harmony':
+        return <MoneyHarmonyPage />;
       case 'profile':
       case 'settings':
-      case 'review':
         return <ProfilePage />;
       case 'home':
       case 'dashboard':
       default:
         return (
-          <HomePage
+          <TravelHomeDashboard
+            onNavigate={setActiveTab}
             onOpenAddModal={() => setIsTwoTapModalOpen(true)}
-            onOpenEditIncome={() => setIsEditIncomeOpen(true)}
             onOpenCoach={() => setIsCoachOpen(true)}
           />
         );
@@ -71,37 +85,34 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F5EC] text-[#2C382E] flex flex-col font-sans selection:bg-[#B8CBB3]/40 selection:text-[#49664D] relative">
-      {/* Warm Ambient Accents in background */}
-      <div className="fixed -top-32 -left-32 w-80 h-80 bg-[#B8CBB3]/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 -right-32 w-80 h-80 bg-[#E9E1D1]/30 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#F4F7F4] text-[#233329] flex flex-col font-sans selection:bg-[#B6C7B5]/40 selection:text-[#1E3A2B] relative">
+      {/* Soothing Pastel Ambient Backdrop Accents */}
+      <div className="fixed -top-32 -left-32 w-96 h-96 bg-[#DCE7DD]/35 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-1/3 -right-32 w-80 h-80 bg-[#DDE5ED]/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed -bottom-24 left-1/4 w-96 h-96 bg-[#FAF7F0]/40 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Top Navbar */}
-      <Navbar
-        onOpenAddModal={() => setIsTwoTapModalOpen(true)}
-        onOpenEditIncome={() => setIsEditIncomeOpen(true)}
+      {/* Top Navigation Bar with Minimalist Rounded Square Buttons */}
+      <TravelTopBar
+        currentScreen={activeTab}
+        onNavigate={setActiveTab}
         onOpenCoach={() => setIsCoachOpen(true)}
       />
 
-      {/* Main Container */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Optional Desktop Sidebar */}
-        <div className="hidden lg:block shrink-0">
-          <Sidebar />
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 pb-28">
+        <div className="max-w-4xl mx-auto">
+          {renderActivePage()}
         </div>
+      </main>
 
-        {/* Scrollable View Area */}
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
-          <div className="max-w-6xl mx-auto">
-            {renderActivePage()}
-          </div>
-        </main>
-      </div>
+      {/* Floating Glassmorphic Bottom Navigation Bar */}
+      <TravelGlassNav
+        currentScreen={activeTab}
+        onNavigate={setActiveTab}
+        onOpenAddModal={() => setIsTwoTapModalOpen(true)}
+      />
 
-      {/* Mobile Bottom Navigation */}
-      <BottomNav onOpenAddModal={() => setIsTwoTapModalOpen(true)} />
-
-      {/* Modals & Drawers */}
+      {/* Interactive Modals & Drawers */}
       <TwoTapExpenseModal
         isOpen={isTwoTapModalOpen}
         onClose={() => setIsTwoTapModalOpen(false)}

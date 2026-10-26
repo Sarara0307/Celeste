@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { GoogleGenAI } from '@google/genai';
 import {
   Bill,
   CategoryBudget,
@@ -26,7 +25,7 @@ export interface CoachAnswer {
 export class AiCoachService {
   /**
    * Generates instant, mathematically accurate coaching answers based on live user data.
-   * If a Gemini API key is available and a freeform question is asked, it uses Gemini with grounded user metrics.
+   * If a Gemini API key is available on the server and a freeform question is asked, it uses Gemini with grounded user metrics.
    */
   public static async answerQuestion(
     question: string,
@@ -68,48 +67,41 @@ export class AiCoachService {
       return this.handleAffordabilityQuestion(summary);
     }
 
-    // Freeform question: Attempt Gemini API if key is available, else rule-based synthesis
-    const apiKey = typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : '';
-    if (apiKey && apiKey !== 'MY_GEMINI_API_KEY' && apiKey.length > 5) {
-      try {
-        const ai = new GoogleGenAI({ apiKey });
-        const prompt = `You are SaveSense AI financial coach. The user asks: "${question}".
-Live User Data:
-- Monthly Income: ${formatPaise(settings.monthlyIncomePaise)}
-- Available Liquid Balance: ${formatPaise(summary.currentAvailableBalancePaise)}
-- Signature Safe-to-Spend Balance: ${formatPaise(summary.spendableBalancePaise)}
-- Suggested Daily Allowance: ${formatPaise(summary.suggestedDailyAllowancePaise)} / day (${summary.daysRemainingUntilIncome} days remaining)
-- Unpaid Essential Bills: ${formatPaise(summary.unpaidEssentialBillsPaise)}
-- Planned Monthly Savings: ${formatPaise(summary.plannedSavingsMonthlyPaise)}
-- Emergency Reserve: ${formatPaise(summary.emergencyReservePaise)}
-- Active Goals: ${jars.map(j => `${j.name}: ${formatPaise(j.savedPaise)} of ${formatPaise(j.targetPaise)}`).join(', ')}
-
-Provide a concise, practical, empathetic answer in under 120 words. No banking jargon. Give 2 practical action steps.`;
-
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: prompt,
-        });
-
-        const text = response.text || 'Keep prioritizing essential bills and maintaining your safe-to-spend limit.';
-        return {
+    // Freeform question: Attempt server-side Gemini proxy if available, else rule-based synthesis
+    try {
+      const response = await fetch('/api/coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           question,
-          answer: text,
-          dataPoints: [
-            { label: 'Safe-to-Spend Balance', value: formatPaise(summary.spendableBalancePaise) },
-            { label: 'Daily Allowance', value: formatPaise(summary.suggestedDailyAllowancePaise) },
-            { label: 'Days Remaining', value: `${summary.daysRemainingUntilIncome} days` },
-          ],
-          actionSteps: [
-            'Honor scheduled essential bills before discretionary splurges.',
-            'Review Safe-to-Spend daily allowance before checking out.',
-          ],
-          isAiGenerated: true,
-          confidence: 'ai_advisory',
-        };
-      } catch {
-        // Fall back gracefully to synthesized response
+          summary,
+          settings,
+          jars,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.answer && typeof data.answer === 'string' && data.answer.trim().length > 0) {
+          return {
+            question,
+            answer: data.answer,
+            dataPoints: [
+              { label: 'Safe-to-Spend Balance', value: formatPaise(summary.spendableBalancePaise) },
+              { label: 'Daily Allowance', value: formatPaise(summary.suggestedDailyAllowancePaise) },
+              { label: 'Days Remaining', value: `${summary.daysRemainingUntilIncome} days` },
+            ],
+            actionSteps: [
+              'Honor scheduled essential bills before discretionary splurges.',
+              'Review Safe-to-Spend daily allowance before checking out.',
+            ],
+            isAiGenerated: true,
+            confidence: 'ai_advisory',
+          };
+        }
       }
+    } catch {
+      // Fall back gracefully to synthesized response
     }
 
     // Default fallback synthesis
