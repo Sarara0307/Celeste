@@ -1,84 +1,108 @@
-# SaveSense — Your money, your dreams, your pace.
+# Celeste 🌟
 
-> **Tagline**: *“Your money, your dreams, your pace.”*  
-> **Audience**: Young adults, students, first-job earners, freelancers, and first-time savers.
+## Project Title
+**Celeste – SaveSense
+
+## Team Members
+- **Team Leader:** riham
+- **Team Member 2:** sarara safroon 
+
+## Project Description
+Celeste is a team-based project developed to solve a real-world problem using technology and creative thinking. The project focuses on creating a user-friendly, reliable, and efficient solution while applying programming concepts, teamwork, and problem-solving skills.
+
+Our goal is to build a project that is easy to use, maintainable, and useful to its intended users. We developed and improved the project through testing, debugging, and collaboration.
+
+### Objectives
+- Build a functional and user-friendly application.
+- Apply programming and software development concepts.
+- Identify and fix bugs through testing.
+- Use AI tools responsibly to support development.
+- Collaborate effectively as a team.
+
+## Technologies Used
+- **Programming Language:** [Add your language]
+- **Framework:** [Add your framework]
+- **Development Tools:** Visual Studio Code, Git, and GitHub
+- **Version Control:** Git and GitHub
+
+## AI Tools Used
+- **ChatGPT:** Assisted with understanding code, brainstorming solutions, debugging approaches, and improving documentation.
+- **[Other AI Tool]:** [Describe how it was used, if applicable.]
+
+## Important Prompts Used
+The following prompts were used to support the development process:
+
+1. "Explain the structure and functionality of this project."
+2. "Review this code and identify possible errors or improvements."
+3. "Help me understand how to fix this bug step by step."
+4. "Suggest ways to improve the readability and maintainability of this code."
+5. "Explain the purpose of this function and how it works."
+6. "Generate a README.md file describing the project, its technologies, and its development process."
+
+## AI-Generated Code That Was Modified
+AI-generated suggestions were reviewed and adapted to suit the requirements of our project.
+
+- **Code/Feature:** [Name the function or feature]
+- **Original issue:** [Describe the limitation or problem]
+- **Modification made:** [Explain what you changed]
+- **Reason for modification:** To ensure the solution matched the project's requirements and worked correctly with the existing code.
+
+All modifications should be updated here to reflect the actual code changes made by the team.
+
+## Bug Solved Independently
+- **Bug description:** [Describe a bug you personally identified.]
+- **Cause:** [Explain what caused the bug.]
+- **Solution:** [Describe the steps you took to fix it without AI assistance.]
+- **Testing:** [Explain how you verified that the fix worked.]
+- **Learning outcome:** This experience improved my debugging skills, logical reasoning, and understanding of the codebase.
+
+## Installation and Setup
+Follow these steps to run the project locally.
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/riham12v-sketch/Celeste.git
+   ```
+
+2. Navigate to the project directory:
+
+   ```bash
+   cd Celeste
+   ```
+
+3. Install the required dependencies according to the project's framework and configuration.
+
+4. Start the application using the appropriate command for the project.
+
+   **Note:** The exact installation and execution commands depend on the technologies used in this repository.
+
+## Project Structure
+The project structure depends on the files and folders included in the repository. The main source code, configuration files, documentation, and other required resources are maintained in this repository.
+
+## Learning Outcomes
+Through this project, we aim to improve our skills in:
+
+- Software development and problem-solving.
+- Debugging and testing.
+- Git and GitHub collaboration.
+- Understanding and responsibly using AI-assisted development.
+- Reviewing, modifying, and validating generated code.
+
+## Future Improvements
+- Add new features based on user feedback.
+- Improve performance and reliability.
+- Strengthen error handling and testing.
+- Improve the user interface and documentation where applicable.
+
+## Repository
+GitHub: https://github.com/riham12v-sketch/Celeste
+
+## Acknowledgements
+We acknowledge the use of AI tools as development aids and recognize the importance of independent problem-solving, code review, and testing.
 
 ---
 
-## 📌 Product Vision
+**Developed as a team project.**
 
-**SaveSense** is a beginner-friendly, calm financial management and vision board application designed for young adults experiencing financial independence for the first time.
-
-Instead of intimidating Wall Street jargon, dense tables, or judgmental alerts about spending, SaveSense brings a warm, editorial lifestyle aesthetic that helps users answer four essential questions:
-
-1. **Where is my money going?**
-2. **How much can I safely spend?**
-3. **How can I save without feeling overwhelmed?**
-4. **How can I turn my financial dreams into achievable goals?**
-
----
-
-## 🎨 Visual Identity & Design System
-
-- **Cream Background**: `#F7F5EC`
-- **White Surface Cards**: `#FFFFFF` with warm subtle borders (`#E9E1D1`)
-- **Sage Green**: `#B8CBB3` (progress rings, milestone badges)
-- **Deep Forest Green**: `#49664D` (primary buttons, major headers)
-- **Soft Sand**: `#E9E1D1` / `#FAF7F0` (secondary surfaces, tag pills)
-- **Muted Gray-Green**: `#657365` (calm helper copy)
-- **Primary Text**: `#2C382E` (high contrast, accessible readability)
-- **Typography**: Editorial serif accents (`Newsreader`), clean UI body (`Plus Jakarta Sans`), and tabular figures (`JetBrains Mono`).
-
----
-
-## 🌟 Core Features & 5-Tab Architecture
-
-### 1. Home (`home`)
-- **"Here's where you stand"**: Warm morning/afternoon greeting with persona badge.
-- **Money Weather Card**: Human-first calm indicators (*Clear Skies*, *Gentle Breeze*, or *Shelter Mode*) with weather icons.
-- **The Payday Bridge**: Available money after upcoming essential bills and planned dreams divided by days remaining until next income (*"You have ₹14,200 available for the next 11 days. That's an average of ₹1,290 per day."*).
-- **"Coming up soon"**: Ring-fenced Bill Shield preview with 1-tap "Mark Paid".
-- **"Your next little win"**: Encouragement card for the dream closest to its next milestone.
-- **"Your dreams in progress"**: Grid preview of active vision board dreams.
-
-### 2. My Money (`money`)
-- **Two-Tap Expense Logger**: Quick amount input, instant category buttons, and tags (Chai, Mess, Metro, Coffee).
-- **Payday Bridge Engine**: Detailed calculation formula with zero double-counting.
-- **Bill Shield**: Unpaid bills ring-fenced from spendable balance with toggle between List View and Calendar Timeline.
-- **Leftover Finder**: Allocates unspent surplus directly into a Vision Board dream.
-- **Full Transaction Ledger**: Search, category filters, and CSV export.
-
-### 3. Vision Board (`vision`) — Signature Feature
-- **Visual Dreams Grid**: Curated photography and personal dreams for the current year (MacBook, First Apartment, Mountain Trek, Emergency Fund, Education).
-- **Priority Tags**: *Important now*, *Working toward it*, *Someday*.
-- **"Make It Happen" Goal Planner**: Reality Check feasibility summary comparing required monthly contributions with real available budget.
-- **Milestone Celebrations**: Gentle celebrations and confetti at 10%, 25%, 50%, 75%, and 100%.
-- **Year-End Reflection**: Gratitude summary of total money saved toward dreams.
-
-### 4. Goals (`goals`)
-- **Virtual Savings Buckets / Jars**: Target amounts, current saved amounts, and monthly contribution pacing.
-- **"Buy, Wait, or Skip" Purchase Simulator**:
-  - Tests non-essential purchases before spending.
-  - Predicts spendable balance change, daily pace drop, and goal delays.
-  - Offers 3 supportive choices:
-    1. *Buy Now* (logs expense if budget allows)
-    2. *Wait 48 Hours* (adds to gentle cooling-off wishlist)
-    3. *Skip & Save to Dream* (redirects the impulse amount directly into savings).
-
-### 5. Profile & Settings (`profile`)
-- **Young Adult Persona Selector**: Student, First Job, Freelancer, Young Professional, Explorer.
-- **Monthly Income & Payday Editor**: Instant update to monthly earnings and next payday date.
-- **Monthly Fresh Start Wizard**: Clean cycle reset that preserves all vision board history.
-- **Data Ownership & Backup**: Local browser storage, zero tracking, and JSON backup export.
-
----
-
-## 🛠️ Technology Stack
-
-- **Frontend**: React 19, TypeScript
-- **Styling**: Tailwind CSS v4
-- **Animation & Confetti**: Canvas-Confetti, Motion
-- **Icons**: Lucide React
-- **Typography**: Newsreader, Plus Jakarta Sans, JetBrains Mono
-- **Build Tool**: Vite
-- **Storage**: Client-side LocalStorage in integer paise (1 INR = 100 paise)
+*This README should be updated to accurately represent the implemented features, actual team contributions, AI usage, code modifications, and independently solved bug.*
