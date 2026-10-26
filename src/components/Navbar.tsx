@@ -18,6 +18,8 @@ import {
   Menu,
   X,
   Calendar,
+  Coins,
+  Scale,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -36,9 +38,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
+    { id: 'habits', label: 'Habit Stash', icon: Coins, badge: '🎮' },
+    { id: 'harmony', label: 'Money Harmony', icon: Scale, badge: '⚡' },
     { id: 'money', label: 'My Money', icon: Wallet },
     { id: 'vision', label: 'Vision Board', icon: Compass, badge: '✨' },
-    { id: 'goals', label: 'Goals', icon: Target },
     { id: 'profile', label: 'Profile', icon: User },
   ];
 

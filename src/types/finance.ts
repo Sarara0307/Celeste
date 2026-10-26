@@ -198,14 +198,22 @@ export interface VisionDream {
   celebratedMilestones?: number[]; // e.g. [10, 25, 50, 75, 100]
 }
 
-export type MoneyWeatherStatus = 'on_track' | 'take_care' | 'needs_attention';
+export type MoneyWeatherStatus = 'sunny' | 'amber' | 'rainy';
 
-export interface MoneyWeather {
+export interface MoneyWeatherMetrics {
+  currentAvailableBalancePaise: number;
+  expectedIncomePaise: number;
+  upcomingMandatoryBillsPaise: number;
+  remainingDailyBudgetPaise: number;
+  netCushionPaise: number;
   status: MoneyWeatherStatus;
   headline: string;
+  oneSentenceSummary: string;
   explanation: string;
   icon: 'sun' | 'cloud' | 'rain';
 }
+
+export type MoneyWeather = MoneyWeatherMetrics;
 
 export interface PaydayBridgeInfo {
   availableSpendablePaise: number;
@@ -215,5 +223,82 @@ export interface PaydayBridgeInfo {
   unpaidBillsPaise: number;
   reservedSavingsPaise: number;
   friendlyMessage: string;
+}
+
+// === FEATURE 2: HABIT-TO-ASSET CONVERTER TYPES ===
+export interface HabitCard {
+  id: string;
+  title: string;
+  category: string;
+  amountPaise: number; // in integer paise (₹150 = 15000)
+  amountUsd: number; // approximate $ USD ($5)
+  icon: string;
+  description: string;
+  timesLogged: number;
+  totalSavedPaise: number;
+}
+
+export type PetStage = 'egg' | 'sprout' | 'blossom' | 'guardian' | 'golden';
+
+export interface PartnerRewardBadge {
+  id: string;
+  brand: string;
+  title: string;
+  discountCode: string;
+  unlockedAtLevel: number;
+  category: string;
+  icon: string;
+  description: string;
+  isUnlocked: boolean;
+}
+
+export interface AvatarPetState {
+  name: string;
+  level: number;
+  xp: number;
+  stage: PetStage;
+  totalSavedPaise: number;
+  totalSavesCount: number;
+  streakDays: number;
+  lastInteractedDate?: string;
+  favoriteFood?: string;
+}
+
+// === FEATURE 3: MONEY HARMONY TYPES ===
+export interface HarmonyMember {
+  id: string;
+  name: string;
+  monthlyIncomePaise: number;
+  paidPaise: number;
+  color: string;
+  avatarInitial: string;
+  isCurrentUser?: boolean;
+}
+
+export type HarmonySplitMode = 'proportional' | 'equal';
+
+export interface HarmonySettlement {
+  id: string;
+  fromMemberId: string;
+  fromName: string;
+  toMemberId: string;
+  toName: string;
+  amountPaise: number;
+  note: string;
+}
+
+export interface HarmonySplitResult {
+  totalBillPaise: number;
+  splitMode: HarmonySplitMode;
+  memberShares: {
+    memberId: string;
+    name: string;
+    incomePaise: number;
+    incomePercentage: number;
+    sharePaise: number;
+    paidPaise: number;
+    netPaise: number; // +ve: receives money, -ve: owes money
+  }[];
+  settlements: HarmonySettlement[];
 }
 

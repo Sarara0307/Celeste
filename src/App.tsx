@@ -13,12 +13,14 @@ import { TwoTapExpenseModal } from './components/TwoTapExpenseModal';
 import { EditIncomeModal } from './components/EditIncomeModal';
 import { SmartCoachDrawer } from './components/SmartCoachDrawer';
 
-// 5 Core Pages
+// Core Pages
 import { HomePage } from './pages/HomePage';
 import { MyMoneyPage } from './pages/MyMoneyPage';
 import { VisionBoardPage } from './pages/VisionBoardPage';
 import { GoalsPage } from './pages/GoalsPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { HabitConverterPage } from './pages/HabitConverterPage';
+import { MoneyHarmonyPage } from './pages/MoneyHarmonyPage';
 
 const AppContent: React.FC = () => {
   const { activeTab, setActiveTab } = useFinance();
@@ -28,6 +30,12 @@ const AppContent: React.FC = () => {
 
   const renderActivePage = () => {
     switch (activeTab) {
+      case 'habits':
+      case 'converter':
+        return <HabitConverterPage />;
+      case 'harmony':
+      case 'split':
+        return <MoneyHarmonyPage />;
       case 'money':
       case 'safe_spend':
       case 'transactions':

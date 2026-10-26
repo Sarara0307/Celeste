@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
 import { formatPaise } from '../utils/formatters';
+import { MoneyWeatherCard } from '../components/MoneyWeatherCard';
 import {
   Sun,
   Cloud,
@@ -20,6 +21,10 @@ import {
   Info,
   Clock,
   TrendingUp,
+  Coins,
+  Scale,
+  Gift,
+  Zap,
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -40,6 +45,9 @@ export const HomePage: React.FC<HomePageProps> = ({
     dreams,
     moneyWeather,
     paydayBridge,
+    avatarPet,
+    habits,
+    logHabitSave,
     setActiveTab,
     toggleBillPaid,
     contributeToDream,
@@ -104,132 +112,185 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </div>
 
-      {/* Grid: Money Weather & Payday Bridge Signature Hero */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Money Weather Card (4 cols) */}
-        <div className="lg:col-span-4 warm-card rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden">
-          <div className="flex items-start justify-between">
-            <div>
-              <span className="text-[11px] font-bold text-[#657365] uppercase tracking-wider block mb-1">
-                Money Weather
+      {/* FEATURE 1: Money Weather ☀️ Hero Banner */}
+      <MoneyWeatherCard onOpenEditIncome={onOpenEditIncome} />
+
+      {/* Signature Payday Bridge & Safe-to-Spend Hero */}
+      <div className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between bg-gradient-to-br from-white via-white to-[#FAF7F0] border border-[#E9E1D1]">
+        <div>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#49664D]" />
+              <span className="text-xs font-bold text-[#49664D] uppercase tracking-wider">
+                The Payday Bridge • Signature Engine
               </span>
-              <h2 className="font-editorial text-2xl font-bold text-[#2C382E]">
-                {moneyWeather.headline}
-              </h2>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-[#FAF7F0] border border-[#E9E1D1] flex items-center justify-center shrink-0">
-              {getWeatherIcon()}
-            </div>
-          </div>
-
-          <div className="my-6 p-4 rounded-2xl bg-[#FAF7F0] border border-[#E9E1D1]">
-            <p className="text-xs text-[#2C382E] leading-relaxed">
-              {moneyWeather.explanation}
-            </p>
-          </div>
-
-          <div className="pt-2 border-t border-[#E9E1D1] flex items-center justify-between text-xs text-[#657365]">
-            <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-[#49664D]" />
-              <span>Next deposit: {settings.nextIncomeDate}</span>
+            <span className="text-xs font-medium text-[#657365] px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E9E1D1]">
+              {summary.daysRemainingUntilIncome} days until payday ({settings.nextIncomeDate})
             </span>
-            <button
-              onClick={onOpenEditIncome}
-              className="text-[#49664D] font-semibold hover:underline"
-            >
-              Change
-            </button>
+          </div>
+
+          {/* Plain-Language Daily Allowance Headline */}
+          <h2 className="font-editorial text-2xl sm:text-3xl font-bold text-[#2C382E] leading-snug">
+            You have{' '}
+            <span className="text-[#49664D] underline decoration-[#B8CBB3] decoration-2 underline-offset-4">
+              {formatPaise(Math.max(0, summary.spendableBalancePaise))}
+            </span>{' '}
+            available for the next {summary.daysRemainingUntilIncome} days. That&apos;s an
+            average of{' '}
+            <span className="text-[#2C382E] font-mono">
+              {formatPaise(summary.suggestedDailyAllowancePaise)}
+            </span>{' '}
+            per day.
+          </h2>
+
+          {/* Visual Ring-Fenced Deductions Breakdown */}
+          <div className="mt-6 p-4 rounded-2xl bg-[#F7F5EC] border border-[#E9E1D1] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div>
+              <span className="text-[10px] text-[#657365] block uppercase font-semibold">
+                Operating Cash
+              </span>
+              <span className="font-bold font-mono text-[#2C382E] text-sm">
+                {formatPaise(summary.currentAvailableBalancePaise)}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-[#657365] block uppercase font-semibold">
+                Bills Ring-fenced
+              </span>
+              <span className="font-bold font-mono text-[#657365] text-sm">
+                -{formatPaise(summary.unpaidEssentialBillsPaise)}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-[#657365] block uppercase font-semibold">
+                Dreams Protected
+              </span>
+              <span className="font-bold font-mono text-[#49664D] text-sm">
+                -{formatPaise(summary.plannedSavingsMonthlyPaise)}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-[#657365] block uppercase font-semibold">
+                Safe Daily Pace
+              </span>
+              <span className="font-bold font-mono text-[#49664D] text-sm">
+                {formatPaise(summary.suggestedDailyAllowancePaise)}/d
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Signature Payday Bridge & Safe-to-Spend Hero (8 cols) */}
-        <div className="lg:col-span-8 warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between bg-gradient-to-br from-white via-white to-[#FAF7F0]">
+        {/* Action Row */}
+        <div className="mt-6 pt-4 border-t border-[#E9E1D1] flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-[#657365]">
+            Everything essential is already guarded. Spend up to your daily pace without guilt.
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSafeSpendModal(true)}
+              className="px-4 py-2 rounded-xl bg-[#FAF7F0] hover:bg-[#E9E1D1] text-[#2C382E] text-xs font-semibold transition-colors flex items-center gap-1.5"
+            >
+              <Info className="w-3.5 h-3.5 text-[#49664D]" />
+              <span>How is this calculated?</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('money')}
+              className="px-4 py-2 rounded-xl bg-[#49664D] hover:bg-[#3D5540] text-white text-xs font-semibold transition-all shadow-xs flex items-center gap-1.5"
+            >
+              <span>Check My Money</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* CORE INNOVATIONS: Habit-to-Asset Converter & Money Harmony */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Feature 2: Habit-to-Asset Converter Card */}
+        <div className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between bg-gradient-to-br from-white via-[#FAFDF8] to-[#F4F9F2] border border-[#B8CBB3]/60 relative overflow-hidden">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#49664D]" />
-                <span className="text-xs font-bold text-[#49664D] uppercase tracking-wider">
-                  The Payday Bridge • Signature Engine
-                </span>
-              </div>
-              <span className="text-xs font-medium text-[#657365] px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E9E1D1]">
-                {summary.daysRemainingUntilIncome} days until payday
+            <div className="flex items-center justify-between mb-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B8CBB3]/30 text-[#49664D] text-xs font-bold">
+                <Coins className="w-3.5 h-3.5" />
+                <span>Feature 2 • Gamified Saves</span>
+              </span>
+              <span className="text-xs font-bold text-[#49664D] bg-white px-2.5 py-1 rounded-full border border-[#E9E1D1]">
+                Level {avatarPet.level} • {avatarPet.name}
               </span>
             </div>
 
-            {/* Human-Language Calculation Headline */}
-            <h2 className="font-editorial text-2xl sm:text-3xl font-bold text-[#2C382E] leading-snug">
-              You have{' '}
-              <span className="text-[#49664D] underline decoration-[#B8CBB3] decoration-2 underline-offset-4">
-                {formatPaise(Math.max(0, summary.spendableBalancePaise))}
-              </span>{' '}
-              available for the next {summary.daysRemainingUntilIncome} days. That&apos;s an
-              average of{' '}
-              <span className="text-[#2C382E] font-mono">
-                {formatPaise(summary.suggestedDailyAllowancePaise)}
-              </span>{' '}
-              per day.
-            </h2>
-
-            {/* Visual Safe-to-Spend Deductions Bar */}
-            <div className="mt-6 p-4 rounded-2xl bg-[#F7F5EC] border border-[#E9E1D1] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div>
-                <span className="text-[10px] text-[#657365] block uppercase font-semibold">
-                  Operating Cash
-                </span>
-                <span className="font-bold font-mono text-[#2C382E] text-sm">
-                  {formatPaise(summary.currentAvailableBalancePaise)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#657365] block uppercase font-semibold">
-                  Bills Ring-fenced
-                </span>
-                <span className="font-bold font-mono text-[#657365] text-sm">
-                  -{formatPaise(summary.unpaidEssentialBillsPaise)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#657365] block uppercase font-semibold">
-                  Dreams Protected
-                </span>
-                <span className="font-bold font-mono text-[#49664D] text-sm">
-                  -{formatPaise(summary.plannedSavingsMonthlyPaise)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#657365] block uppercase font-semibold">
-                  Daily Safe Pace
-                </span>
-                <span className="font-bold font-mono text-[#49664D] text-sm">
-                  {formatPaise(summary.suggestedDailyAllowancePaise)}/d
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Primary CTA Row */}
-          <div className="mt-6 pt-4 border-t border-[#E9E1D1] flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-[#657365]">
-              Everything essential is already guarded. Spend up to your daily pace without guilt.
+            <h3 className="font-editorial text-xl font-bold text-[#2C382E] mb-1">
+              Habit-to-Asset Converter
+            </h3>
+            <p className="text-xs text-[#657365] leading-relaxed mb-4">
+              Turn skipped coffees and mindful daily habits into an auto-invested stash (+10 XP per $1).
             </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowSafeSpendModal(true)}
-                className="px-4 py-2 rounded-xl bg-[#FAF7F0] hover:bg-[#E9E1D1] text-[#2C382E] text-xs font-semibold transition-colors flex items-center gap-1.5"
-              >
-                <Info className="w-3.5 h-3.5 text-[#49664D]" />
-                <span>How is this calculated?</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('money')}
-                className="px-4 py-2 rounded-xl bg-[#49664D] hover:bg-[#3D5540] text-white text-xs font-semibold transition-all shadow-xs flex items-center gap-1.5"
-              >
-                <span>Check My Money</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+
+            <div className="p-4 rounded-2xl bg-white border border-[#E9E1D1] space-y-2 mb-4">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[#657365]">Invested Habit Stash:</span>
+                <span className="font-bold text-base text-[#2C382E]">
+                  {formatPaise(avatarPet.totalSavedPaise)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-[#657365]">
+                <span>XP Growth: {avatarPet.xp} XP</span>
+                <span className="text-[#49664D] font-semibold">Stage: {avatarPet.stage.toUpperCase()}</span>
+              </div>
             </div>
           </div>
+
+          <button
+            onClick={() => setActiveTab('habits')}
+            className="w-full py-2.5 rounded-2xl bg-[#49664D] hover:bg-[#3D5540] text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-xs"
+          >
+            <span>Open Habit Converter</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Feature 3: Money Harmony Card */}
+        <div className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between bg-gradient-to-br from-white via-[#FAF7F0] to-[#F2ECE1] border border-[#E9E1D1] relative overflow-hidden">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E9E1D1] text-[#2C382E] text-xs font-bold">
+                <Scale className="w-3.5 h-3.5 text-[#49664D]" />
+                <span>Feature 3 • Frictionless Splitting</span>
+              </span>
+              <span className="text-xs font-bold text-[#49664D] bg-white px-2.5 py-1 rounded-full border border-[#E9E1D1]">
+                Zero Awkwardness
+              </span>
+            </div>
+
+            <h3 className="font-editorial text-xl font-bold text-[#2C382E] mb-1">
+              Money Harmony
+            </h3>
+            <p className="text-xs text-[#657365] leading-relaxed mb-4">
+              Proportional income bill-splitting, minimal transaction settlements, and 1-click polite AI nudges.
+            </p>
+
+            <div className="p-4 rounded-2xl bg-white border border-[#E9E1D1] space-y-2 mb-4">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[#657365]">Algorithm:</span>
+                <span className="font-bold text-xs text-[#49664D]">
+                  Relative Income Ratio
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-[#657365]">
+                <span>AI Nudges: 4 polite styles</span>
+                <span className="text-[#49664D] font-semibold">Min-Transaction Resolver</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setActiveTab('harmony')}
+            className="w-full py-2.5 rounded-2xl bg-[#49664D] hover:bg-[#3D5540] text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-xs"
+          >
+            <span>Open Money Harmony</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
 

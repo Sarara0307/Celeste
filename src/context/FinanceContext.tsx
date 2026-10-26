@@ -5,29 +5,42 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
+  AvatarPetState,
   Bill,
   CategoryBudget,
   Challenge,
   FinancialSummary,
+  HabitCard,
+  HarmonyMember,
+  HarmonySplitMode,
+  HarmonySplitResult,
   MoneyWeather,
+  PartnerRewardBadge,
   PaydayBridgeInfo,
+  PetStage,
   SavingsJar,
   Transaction,
   UserSettings,
   VisionDream,
 } from '../types/finance';
 import { FinancialEngine } from '../services/financialEngine';
+import { MoneyHarmonyEngine } from '../services/moneyHarmonyEngine';
 import {
+  INITIAL_AVATAR_PET,
   INITIAL_BILLS,
   INITIAL_BUDGETS,
   INITIAL_CHALLENGES,
   INITIAL_DREAMS,
+  INITIAL_HABITS,
+  INITIAL_HARMONY_MEMBERS,
   INITIAL_JARS,
+  INITIAL_PARTNER_REWARDS,
   INITIAL_SETTINGS,
   INITIAL_TRANSACTIONS,
   StorageService,
 } from '../services/storageService';
 import { formatPaise, getTodayDateString } from '../utils/formatters';
+import confetti from 'canvas-confetti';
 
 interface FinanceContextType {
   transactions: Transaction[];
@@ -72,7 +85,33 @@ interface FinanceContextType {
   startFreshMonth: (options?: { newIncomePaise?: number; clearExpenses?: boolean }) => void;
   // Money Weather & Payday Bridge
   moneyWeather: MoneyWeather;
+  weatherSimulationMode: 'live' | 'sunny' | 'amber' | 'rainy';
+  setWeatherSimulationMode: (mode: 'live' | 'sunny' | 'amber' | 'rainy') => void;
   paydayBridge: PaydayBridgeInfo;
+  // Feature 2: Habit-to-Asset Converter
+  habits: HabitCard[];
+  avatarPet: AvatarPetState;
+  partnerRewards: PartnerRewardBadge[];
+  logHabitSave: (habitId: string) => {
+    xpGained: number;
+    leveledUp: boolean;
+    newLevel: number;
+    newStage: PetStage;
+    unlockedBadge?: PartnerRewardBadge;
+  };
+  addCustomHabit: (title: string, amountPaise: number, category: string, icon: string) => void;
+  updatePetName: (newName: string) => void;
+  // Feature 3: Money Harmony
+  harmonyMembers: HarmonyMember[];
+  harmonyTotalBillPaise: number;
+  setHarmonyTotalBillPaise: (amtPaise: number) => void;
+  harmonySplitMode: HarmonySplitMode;
+  setHarmonySplitMode: (mode: HarmonySplitMode) => void;
+  harmonySplitResult: HarmonySplitResult;
+  addHarmonyMember: (name: string, monthlyIncomePaise: number, paidPaise?: number) => void;
+  updateHarmonyMember: (id: string, updates: Partial<HarmonyMember>) => void;
+  deleteHarmonyMember: (id: string) => void;
+  resetHarmonyExpense: () => void;
   // Challenges
   toggleChallengeStreak: (id: string) => void;
   // System / Demo
@@ -85,6 +124,7 @@ interface FinanceContextType {
   setIsShowcaseActive: (active: boolean) => void;
   toastMessage: string | null;
   showToast: (msg: string) => void;
+  triggerConfetti: () => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -107,6 +147,25 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [dreams, setDreams] = useState<VisionDream[]>(() =>
     StorageService.getDreams()
   );
+  const [habits, setHabits] = useState<HabitCard[]>(() =>
+    StorageService.getHabits()
+  );
+  const [avatarPet, setAvatarPet] = useState<AvatarPetState>(() =>
+    StorageService.getAvatarPet()
+  );
+  const [partnerRewards, setPartnerRewards] = useState<PartnerRewardBadge[]>(() =>
+    INITIAL_PARTNER_REWARDS.map((r) => ({
+      ...r,
+      isUnlocked: (StorageService.getAvatarPet()?.level || 1) >= r.unlockedAtLevel,
+    }))
+  );
+  const [harmonyMembers, setHarmonyMembers] = useState<HarmonyMember[]>(() =>
+    StorageService.getHarmonyMembers()
+  );
+  const [harmonyTotalBillPaise, setHarmonyTotalBillPaise] = useState<number>(240000); // Default ₹2,400 bill
+  const [harmonySplitMode, setHarmonySplitMode] = useState<HarmonySplitMode>('proportional');
+  const [weatherSimulationMode, setWeatherSimulationMode] = useState<'live' | 'sunny' | 'amber' | 'rainy'>('live');
+
   const [activeTab, setActiveTab] = useState<string>('home');
   const [showcaseStep, setShowcaseStep] = useState<number>(0);
   const [isShowcaseActive, setIsShowcaseActive] = useState<boolean>(false);
@@ -141,39 +200,131 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     StorageService.saveDreams(dreams);
   }, [dreams]);
 
+  useEffect(() => {
+    StorageService.saveHabits(habits);
+  }, [habits]);
+
+  useEffect(() => {
+    StorageService.saveAvatarPet(avatarPet);
+  }, [avatarPet]);
+
+  useEffect(() => {
+    StorageService.saveHarmonyMembers(harmonyMembers);
+  }, [harmonyMembers]);
+
   // Centralized, reconciliated financial summary
   const summary = useMemo(() => {
     return FinancialEngine.calculateSummary(transactions, bills, jars, settings);
   }, [transactions, bills, jars, settings]);
 
-  // Money Weather (calm, human indicator)
+  // Feature 1: Money Weather ☀️
+  // Formula: (Current Available Balance + Expected Income) - (Upcoming Mandatory Bills + Remaining Daily Budget)
   const moneyWeather = useMemo<MoneyWeather>(() => {
-    const spendable = summary.spendableBalancePaise;
-    const daily = summary.suggestedDailyAllowancePaise;
+    const currentAvailableBalancePaise = summary.currentAvailableBalancePaise;
+    const expectedIncomePaise = settings.monthlyIncomePaise;
+    const upcomingMandatoryBillsPaise = summary.unpaidEssentialBillsPaise;
+    const daysRemaining = Math.max(1, summary.daysRemainingUntilIncome);
+    const suggestedDaily = summary.suggestedDailyAllowancePaise;
+    const remainingDailyBudgetPaise = Math.max(0, suggestedDaily * daysRemaining);
 
-    if (spendable > 0 && daily >= 20000) {
+    const netCushionPaise =
+      currentAvailableBalancePaise +
+      expectedIncomePaise -
+      (upcomingMandatoryBillsPaise + remainingDailyBudgetPaise);
+
+    // If simulation mode is active for demo/judge preview
+    if (weatherSimulationMode === 'sunny') {
       return {
-        status: 'on_track',
-        headline: 'Clear Skies',
-        explanation: 'Your upcoming bills and dream contributions are safe. You have a comfortable daily buffer.',
+        currentAvailableBalancePaise: 4200000,
+        expectedIncomePaise: 2800000,
+        upcomingMandatoryBillsPaise: 199900,
+        remainingDailyBudgetPaise: 1100000,
+        netCushionPaise: 5700100,
+        status: 'sunny',
+        headline: 'Clear Skies — Smooth Sailing',
+        oneSentenceSummary: "You're all clear until your upcoming bills and payday; spending is comfortably on track!",
+        explanation: 'All upcoming essential bills are safeguarded, and your daily spending cushion is comfortably funded.',
         icon: 'sun',
       };
-    } else if (spendable > 0) {
+    }
+
+    if (weatherSimulationMode === 'amber') {
       return {
-        status: 'take_care',
+        currentAvailableBalancePaise: 140000,
+        expectedIncomePaise: 2800000,
+        upcomingMandatoryBillsPaise: 120000,
+        remainingDailyBudgetPaise: 2600000,
+        netCushionPaise: 220000,
+        status: 'amber',
         headline: 'Gentle Breeze — Mindful Pacing',
-        explanation: 'You are on track, but spending at a mindful pace will keep you comfortable until next payday.',
+        oneSentenceSummary: "Caution recommended: Spending is approaching safe limits; pacing your purchases will keep you comfortable until payday.",
+        explanation: 'Bills are covered, but your daily cushion is tight. Mindful pacing until payday ensures you stay stress-free.',
         icon: 'cloud',
       };
-    } else {
+    }
+
+    if (weatherSimulationMode === 'rainy') {
       return {
-        status: 'needs_attention',
-        headline: 'Shelter Mode — Upcoming Obligations',
-        explanation: 'Your planned bills and savings exceed current spendable funds. Protect your essentials first.',
+        currentAvailableBalancePaise: 80000,
+        expectedIncomePaise: 2800000,
+        upcomingMandatoryBillsPaise: 199900,
+        remainingDailyBudgetPaise: 3000000,
+        netCushionPaise: -319900,
+        status: 'rainy',
+        headline: 'Storm Alert — Action Needed',
+        oneSentenceSummary: "Alert: Upcoming mandatory bills exceed your available liquid cash before payday.",
+        explanation: 'Upcoming essential bills exceed your liquid cash on hand. Shelter your essentials and pause discretionary spending.',
         icon: 'rain',
       };
     }
-  }, [summary]);
+
+    // Live calculation:
+    // Rainy if current available cash is less than upcoming mandatory bills OR net cushion is negative
+    if (currentAvailableBalancePaise < upcomingMandatoryBillsPaise || netCushionPaise < 0) {
+      return {
+        currentAvailableBalancePaise,
+        expectedIncomePaise,
+        upcomingMandatoryBillsPaise,
+        remainingDailyBudgetPaise,
+        netCushionPaise,
+        status: 'rainy',
+        headline: 'Storm Alert — Action Needed',
+        oneSentenceSummary: `Alert: Upcoming mandatory bills of ${formatPaise(upcomingMandatoryBillsPaise)} exceed available liquid cash before payday.`,
+        explanation: 'Upcoming mandatory bills exceed your current available funds. Shelter your essentials and pause discretionary buys.',
+        icon: 'rain',
+      };
+    }
+
+    // Amber if cushion is narrow or daily allowance is tight (< ₹150/day)
+    if (netCushionPaise < remainingDailyBudgetPaise * 0.4 || suggestedDaily < 15000) {
+      return {
+        currentAvailableBalancePaise,
+        expectedIncomePaise,
+        upcomingMandatoryBillsPaise,
+        remainingDailyBudgetPaise,
+        netCushionPaise,
+        status: 'amber',
+        headline: 'Gentle Breeze — Mindful Pacing',
+        oneSentenceSummary: 'Caution recommended: Spending is approaching safe limits; pacing your purchases will keep you comfortable until payday.',
+        explanation: 'Your upcoming obligations are covered, but your discretionary cushion is tight until your next income deposit.',
+        icon: 'cloud',
+      };
+    }
+
+    // Sunny: Bills covered, spending comfortably on track
+    return {
+      currentAvailableBalancePaise,
+      expectedIncomePaise,
+      upcomingMandatoryBillsPaise,
+      remainingDailyBudgetPaise,
+      netCushionPaise,
+      status: 'sunny',
+      headline: 'Clear Skies — Smooth Sailing',
+      oneSentenceSummary: "You're all clear until your upcoming bills and payday; spending is comfortably on track!",
+      explanation: 'All upcoming essential bills and planned savings are protected with a comfortable daily spending allowance.',
+      icon: 'sun',
+    };
+  }, [summary, settings.monthlyIncomePaise, weatherSimulationMode]);
 
   // Payday Bridge
   const paydayBridge = useMemo<PaydayBridgeInfo>(() => {
@@ -614,10 +765,200 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setBudgets(INITIAL_BUDGETS);
     setTransactions(INITIAL_TRANSACTIONS);
     setDreams(INITIAL_DREAMS);
+    setHabits(INITIAL_HABITS);
+    setAvatarPet(INITIAL_AVATAR_PET);
+    setHarmonyMembers(INITIAL_HARMONY_MEMBERS);
     setIsShowcaseActive(true);
     setShowcaseStep(1);
     setActiveTab('home');
     showToast('Loaded demo scenario');
+  };
+
+  // Feature 3: Money Harmony Split Result
+  const harmonySplitResult = useMemo(() => {
+    return MoneyHarmonyEngine.calculateSplit(
+      harmonyTotalBillPaise,
+      harmonyMembers,
+      harmonySplitMode
+    );
+  }, [harmonyTotalBillPaise, harmonyMembers, harmonySplitMode]);
+
+  const addHarmonyMember = (name: string, monthlyIncomePaise: number, paidPaise: number = 0) => {
+    const colors = ['#2B5F8C', '#8C5B2B', '#49664D', '#7B4B8A', '#8A6D3B', '#3B7A8A'];
+    const newMember: HarmonyMember = {
+      id: `member-${Date.now()}`,
+      name: name.trim() || 'Roommate',
+      monthlyIncomePaise: Math.max(100000, monthlyIncomePaise),
+      paidPaise,
+      color: colors[harmonyMembers.length % colors.length],
+      avatarInitial: (name.trim()[0] || 'M').toUpperCase(),
+    };
+    setHarmonyMembers((prev) => [...prev, newMember]);
+    showToast(`Added ${newMember.name} to Money Harmony`);
+  };
+
+  const updateHarmonyMember = (id: string, updates: Partial<HarmonyMember>) => {
+    setHarmonyMembers((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
+    );
+  };
+
+  const deleteHarmonyMember = (id: string) => {
+    setHarmonyMembers((prev) => prev.filter((m) => m.id !== id));
+    showToast('Member removed from harmony split');
+  };
+
+  const resetHarmonyExpense = () => {
+    setHarmonyMembers((prev) =>
+      prev.map((m) => ({ ...m, paidPaise: 0 }))
+    );
+    showToast('Reset all paid balances to 0');
+  };
+
+  // Feature 2: Habit-to-Asset Converter
+  const triggerConfetti = () => {
+    try {
+      confetti({
+        particleCount: 55,
+        spread: 65,
+        origin: { y: 0.65 },
+        colors: ['#49664D', '#B8CBB3', '#E9E1D1', '#D4AF37'],
+      });
+    } catch {
+      // safe fallback
+    }
+  };
+
+  const logHabitSave = (habitId: string) => {
+    const habit = habits.find((h) => h.id === habitId);
+    if (!habit) {
+      return {
+        xpGained: 0,
+        leveledUp: false,
+        newLevel: avatarPet.level,
+        newStage: avatarPet.stage,
+      };
+    }
+
+    // Update habit count & total
+    setHabits((prev) =>
+      prev.map((h) =>
+        h.id === habitId
+          ? {
+              ...h,
+              timesLogged: h.timesLogged + 1,
+              totalSavedPaise: h.totalSavedPaise + h.amountPaise,
+            }
+          : h
+      )
+    );
+
+    // XP calculation: $1 = 10 XP
+    const xpGained = Math.max(10, Math.round(habit.amountUsd * 10));
+    const newXp = avatarPet.xp + xpGained;
+    const newTotalSaved = avatarPet.totalSavedPaise + habit.amountPaise;
+    const newSavesCount = avatarPet.totalSavesCount + 1;
+
+    // Determine level & stage:
+    // Level 1: 0 - 99 XP -> Egg
+    // Level 2: 100 - 249 XP -> Sprout
+    // Level 3: 250 - 499 XP -> Blossom
+    // Level 4: 500 - 999 XP -> Forest Guardian
+    // Level 5+: 1000+ XP -> Golden Celestial Guardian
+    let newLevel = 1;
+    let newStage: PetStage = 'egg';
+
+    if (newXp >= 1000) {
+      newLevel = 5;
+      newStage = 'golden';
+    } else if (newXp >= 500) {
+      newLevel = 4;
+      newStage = 'guardian';
+    } else if (newXp >= 250) {
+      newLevel = 3;
+      newStage = 'blossom';
+    } else if (newXp >= 100) {
+      newLevel = 2;
+      newStage = 'sprout';
+    }
+
+    const leveledUp = newLevel > avatarPet.level;
+
+    // Check newly unlocked rewards
+    let unlockedBadge: PartnerRewardBadge | undefined;
+    if (leveledUp) {
+      setPartnerRewards((prev) =>
+        prev.map((r) => {
+          if (!r.isUnlocked && newLevel >= r.unlockedAtLevel) {
+            unlockedBadge = r;
+            return { ...r, isUnlocked: true };
+          }
+          return r;
+        })
+      );
+    }
+
+    const updatedPet: AvatarPetState = {
+      ...avatarPet,
+      xp: newXp,
+      level: newLevel,
+      stage: newStage,
+      totalSavedPaise: newTotalSaved,
+      totalSavesCount: newSavesCount,
+      lastInteractedDate: getTodayDateString(),
+    };
+    setAvatarPet(updatedPet);
+
+    // Record ledger transaction (savings_deposit into Habit Stash)
+    const tx: Transaction = {
+      id: `tx-habit-${Date.now()}`,
+      date: getTodayDateString(),
+      description: `Habit Micro-Save: ${habit.title}`,
+      amountPaise: habit.amountPaise,
+      type: 'savings_deposit',
+      category: 'Investments & Savings',
+      notes: `One-tap micro-transfer (+${xpGained} XP)`,
+    };
+    setTransactions((prev) => [tx, ...prev]);
+
+    triggerConfetti();
+
+    if (leveledUp) {
+      showToast(`🎉 Level Up! ${avatarPet.name} evolved into Level ${newLevel} (${newStage.toUpperCase()})! (+${xpGained} XP)`);
+    } else {
+      showToast(`✨ Saved ${formatPaise(habit.amountPaise)} into Stash! (+${xpGained} XP)`);
+    }
+
+    return {
+      xpGained,
+      leveledUp,
+      newLevel,
+      newStage,
+      unlockedBadge,
+    };
+  };
+
+  const addCustomHabit = (title: string, amountPaise: number, category: string, icon: string) => {
+    const usd = Math.max(1, Math.round(amountPaise / 3000));
+    const newHabit: HabitCard = {
+      id: `habit-${Date.now()}`,
+      title: title.trim() || 'Custom Micro-Save',
+      category: category || 'Everyday',
+      amountPaise,
+      amountUsd: usd,
+      icon: icon || 'Sparkles',
+      description: 'Custom micro-saving routine.',
+      timesLogged: 0,
+      totalSavedPaise: 0,
+    };
+    setHabits((prev) => [newHabit, ...prev]);
+    showToast(`Added custom habit: "${newHabit.title}"`);
+  };
+
+  const updatePetName = (newName: string) => {
+    if (!newName.trim()) return;
+    setAvatarPet((prev) => ({ ...prev, name: newName.trim() }));
+    showToast(`Avatar companion renamed to "${newName.trim()}"`);
   };
 
   return (
@@ -658,7 +999,27 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updateMonthlyIncome,
         startFreshMonth,
         moneyWeather,
+        weatherSimulationMode,
+        setWeatherSimulationMode,
         paydayBridge,
+        // Habits
+        habits,
+        avatarPet,
+        partnerRewards,
+        logHabitSave,
+        addCustomHabit,
+        updatePetName,
+        // Harmony
+        harmonyMembers,
+        harmonyTotalBillPaise,
+        setHarmonyTotalBillPaise,
+        harmonySplitMode,
+        setHarmonySplitMode,
+        harmonySplitResult,
+        addHarmonyMember,
+        updateHarmonyMember,
+        deleteHarmonyMember,
+        resetHarmonyExpense,
         toggleChallengeStreak,
         resetToDemo,
         loadHackathonScenario,
@@ -668,6 +1029,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setIsShowcaseActive,
         toastMessage,
         showToast,
+        triggerConfetti,
       }}
     >
       {children}

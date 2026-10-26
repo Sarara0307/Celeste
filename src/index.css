@@ -67,3 +67,52 @@
 .number-tabular {
   font-variant-numeric: tabular-nums;
 }
+
+@keyframes coinFly {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -60px) scale(1.3);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-50%, -130px) scale(0.6);
+    opacity: 0;
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-coin-fly {
+  animation: coinFly 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: floatGentle 3.5s ease-in-out infinite;
+}
+
+.animate-bounce-slow {
+  animation: floatGentle 2.5s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
+}

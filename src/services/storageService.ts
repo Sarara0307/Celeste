@@ -4,9 +4,13 @@
  */
 
 import {
+  AvatarPetState,
   Bill,
   CategoryBudget,
   Challenge,
+  HabitCard,
+  HarmonyMember,
+  PartnerRewardBadge,
   SavingsJar,
   Transaction,
   UserSettings,
@@ -22,6 +26,9 @@ const STORAGE_KEYS = {
   SETTINGS: 'savesense_settings_v1',
   CHALLENGES: 'savesense_challenges_v1',
   DREAMS: 'savesense_vision_dreams_v1',
+  HABITS: 'savesense_habits_v1',
+  AVATAR_PET: 'savesense_avatar_pet_v1',
+  HARMONY_MEMBERS: 'savesense_harmony_members_v1',
 };
 
 export const INITIAL_SETTINGS: UserSettings = {
@@ -329,6 +336,162 @@ export const INITIAL_CHALLENGES: Challenge[] = [
   },
 ];
 
+export const INITIAL_HABITS: HabitCard[] = [
+  {
+    id: 'habit-coffee',
+    title: 'Skipped $5 Coffee / Boba',
+    category: 'Dining & Drinks',
+    amountPaise: 15000, // ₹150 (~$5)
+    amountUsd: 5,
+    icon: 'Coffee',
+    description: 'Brewed coffee at home instead of buying a latte on the go.',
+    timesLogged: 4,
+    totalSavedPaise: 60000,
+  },
+  {
+    id: 'habit-dinner',
+    title: 'Cooked Dinner at Home',
+    category: 'Food & Groceries',
+    amountPaise: 35000, // ₹350 (~$12)
+    amountUsd: 12,
+    icon: 'UtensilsCrossed',
+    description: 'Whipped up a tasty pantry meal instead of ordering takeout.',
+    timesLogged: 3,
+    totalSavedPaise: 105000,
+  },
+  {
+    id: 'habit-transit',
+    title: 'Took Metro / Walked',
+    category: 'Transport',
+    amountPaise: 12000, // ₹120 (~$4)
+    amountUsd: 4,
+    icon: 'Footprints',
+    description: 'Walked or hopped on the bus instead of booking a rideshare.',
+    timesLogged: 5,
+    totalSavedPaise: 60000,
+  },
+  {
+    id: 'habit-water',
+    title: 'Refilled Own Water Bottle',
+    category: 'Everyday',
+    amountPaise: 8000, // ₹80 (~$3)
+    amountUsd: 3,
+    icon: 'Droplet',
+    description: 'Carried reusable bottle and avoided buying single-use bottled water.',
+    timesLogged: 6,
+    totalSavedPaise: 48000,
+  },
+  {
+    id: 'habit-sub',
+    title: 'Paused Unused Subscription',
+    category: 'Subscriptions',
+    amountPaise: 45000, // ₹450 (~$15)
+    amountUsd: 15,
+    icon: 'Tv',
+    description: 'Audited monthly subscriptions and cancelled an idle streaming app.',
+    timesLogged: 1,
+    totalSavedPaise: 45000,
+  },
+  {
+    id: 'habit-impulse',
+    title: 'Waited 24h on Impulse Buy',
+    category: 'Shopping',
+    amountPaise: 80000, // ₹800 (~$25)
+    amountUsd: 25,
+    icon: 'Clock',
+    description: 'Put an item on the 24-hour cooling-off wishlist and decided to skip it.',
+    timesLogged: 2,
+    totalSavedPaise: 160000,
+  },
+];
+
+export const INITIAL_AVATAR_PET: AvatarPetState = {
+  name: 'Sproutling',
+  level: 2,
+  xp: 180,
+  stage: 'sprout',
+  totalSavedPaise: 478000, // ₹4,780 in micro-savings
+  totalSavesCount: 21,
+  streakDays: 4,
+  lastInteractedDate: getTodayDateString(),
+  favoriteFood: 'Green Leaves & Saved Pennies',
+};
+
+export const INITIAL_PARTNER_REWARDS: PartnerRewardBadge[] = [
+  {
+    id: 'reward-groceries',
+    brand: 'FreshMart Organics',
+    title: '10% Off Pantry Essentials',
+    discountCode: 'SAVESENSE10',
+    unlockedAtLevel: 2,
+    category: 'Groceries',
+    icon: 'ShoppingBag',
+    description: '10% discount on orders over $25 at any FreshMart partner store.',
+    isUnlocked: true,
+  },
+  {
+    id: 'reward-books',
+    brand: 'BookNook Learning',
+    title: '15% Off Coding & Finance Books',
+    discountCode: 'READSAVE15',
+    unlockedAtLevel: 3,
+    category: 'Education',
+    icon: 'BookOpen',
+    description: '15% discount on all non-fiction and tech development titles.',
+    isUnlocked: false,
+  },
+  {
+    id: 'reward-fitness',
+    brand: 'FitPulse Yoga & Gym',
+    title: '1-Month Free Guest Pass',
+    discountCode: 'HEALTHYFINANCE',
+    unlockedAtLevel: 4,
+    category: 'Wellness',
+    icon: 'Heart',
+    description: 'Free 30-day membership access to all community yoga & gym sessions.',
+    isUnlocked: false,
+  },
+  {
+    id: 'reward-transit',
+    brand: 'GreenTransit Network',
+    title: '$20 / ₹500 Metro Transit Pass Credit',
+    discountCode: 'CLEANRIDE20',
+    unlockedAtLevel: 5,
+    category: 'Transport',
+    icon: 'Zap',
+    description: 'Direct transit voucher credit toward your contactless metro or bus pass.',
+    isUnlocked: false,
+  },
+];
+
+export const INITIAL_HARMONY_MEMBERS: HarmonyMember[] = [
+  {
+    id: 'member-me',
+    name: 'Aarav (You)',
+    monthlyIncomePaise: 2800000, // ₹28,000 / mo
+    paidPaise: 79900, // Paid ₹799 Wi-Fi bill upfront
+    color: '#49664D',
+    avatarInitial: 'A',
+    isCurrentUser: true,
+  },
+  {
+    id: 'member-riya',
+    name: 'Riya (Roommate)',
+    monthlyIncomePaise: 4200000, // ₹42,000 / mo
+    paidPaise: 0,
+    color: '#2B5F8C',
+    avatarInitial: 'R',
+  },
+  {
+    id: 'member-dev',
+    name: 'Dev (Study Partner)',
+    monthlyIncomePaise: 2000000, // ₹20,000 / mo
+    paidPaise: 0,
+    color: '#8C5B2B',
+    avatarInitial: 'D',
+  },
+];
+
 export class StorageService {
   public static getTransactions(): Transaction[] {
     try {
@@ -421,6 +584,45 @@ export class StorageService {
     localStorage.setItem(STORAGE_KEYS.DREAMS, JSON.stringify(dreams));
   }
 
+  public static getHabits(): HabitCard[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.HABITS);
+      return data ? JSON.parse(data) : INITIAL_HABITS;
+    } catch {
+      return INITIAL_HABITS;
+    }
+  }
+
+  public static saveHabits(habits: HabitCard[]): void {
+    localStorage.setItem(STORAGE_KEYS.HABITS, JSON.stringify(habits));
+  }
+
+  public static getAvatarPet(): AvatarPetState {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.AVATAR_PET);
+      return data ? JSON.parse(data) : INITIAL_AVATAR_PET;
+    } catch {
+      return INITIAL_AVATAR_PET;
+    }
+  }
+
+  public static saveAvatarPet(pet: AvatarPetState): void {
+    localStorage.setItem(STORAGE_KEYS.AVATAR_PET, JSON.stringify(pet));
+  }
+
+  public static getHarmonyMembers(): HarmonyMember[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.HARMONY_MEMBERS);
+      return data ? JSON.parse(data) : INITIAL_HARMONY_MEMBERS;
+    } catch {
+      return INITIAL_HARMONY_MEMBERS;
+    }
+  }
+
+  public static saveHarmonyMembers(members: HarmonyMember[]): void {
+    localStorage.setItem(STORAGE_KEYS.HARMONY_MEMBERS, JSON.stringify(members));
+  }
+
   /**
    * Resets entire store to initial clean hackathon state
    */
@@ -432,6 +634,9 @@ export class StorageService {
     this.saveBudgets(INITIAL_BUDGETS);
     this.saveChallenges(INITIAL_CHALLENGES);
     this.saveDreams(INITIAL_DREAMS);
+    this.saveHabits(INITIAL_HABITS);
+    this.saveAvatarPet(INITIAL_AVATAR_PET);
+    this.saveHarmonyMembers(INITIAL_HARMONY_MEMBERS);
   }
 
   /**
@@ -448,6 +653,9 @@ export class StorageService {
       budgets: this.getBudgets(),
       challenges: this.getChallenges(),
       dreams: this.getDreams(),
+      habits: this.getHabits(),
+      avatarPet: this.getAvatarPet(),
+      harmonyMembers: this.getHarmonyMembers(),
     };
     return JSON.stringify(backup, null, 2);
   }

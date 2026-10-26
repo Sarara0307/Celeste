@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { Home, Wallet, Compass, Target, User, Plus } from 'lucide-react';
+import { Home, Wallet, Compass, Coins, Scale, User, Plus } from 'lucide-react';
 
 interface BottomNavProps {
   onOpenAddModal: () => void;
@@ -16,10 +16,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onOpenAddModal }) => {
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
+    { id: 'habits', label: 'Habits', icon: Coins },
+    { id: 'harmony', label: 'Harmony', icon: Scale },
     { id: 'money', label: 'My Money', icon: Wallet },
     { id: 'vision', label: 'Vision', icon: Compass },
-    { id: 'goals', label: 'Goals', icon: Target },
-    { id: 'profile', label: 'Profile', icon: User },
   ];
 
   return (

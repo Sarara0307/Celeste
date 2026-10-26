@@ -12,16 +12,19 @@ import {
   Target,
   User,
   Sparkles,
+  Coins,
+  Scale,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const { activeTab, setActiveTab } = useFinance();
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Home, desc: 'Overview & Weather' },
-    { id: 'money', label: 'My Money', icon: Wallet, desc: 'Payday & Bills' },
+    { id: 'home', label: 'Home', icon: Home, desc: 'Overview & Weather ☀️' },
+    { id: 'habits', label: 'Habit Stash', icon: Coins, badge: '🎮', desc: 'Micro-Investments' },
+    { id: 'harmony', label: 'Money Harmony', icon: Scale, badge: '⚡', desc: 'Fair-Split & Nudges' },
+    { id: 'money', label: 'My Money', icon: Wallet, desc: 'Payday & Safe-to-Spend' },
     { id: 'vision', label: 'Vision Board', icon: Compass, badge: '✨', desc: 'Financial Dreams' },
-    { id: 'goals', label: 'Goals', icon: Target, desc: 'Jars & Simulator' },
     { id: 'profile', label: 'Profile', icon: User, desc: 'Settings & Fresh Start' },
   ];
 
