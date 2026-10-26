@@ -1,0 +1,6 @@
+{
+  "name": "SaveSense",
+  "description": "Your money, your dreams, your pace. A friendly, beginner-friendly money management and vision board app for young adults.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
